@@ -9,7 +9,7 @@ b12 b13 b14 b15
 b0 b1 b2 b3 (none)
 b5 b6 b7 b4 (left shift)
 b10 b11 b8 b9 (double left shift)
-b15 b12 b13 b14 (right shift)
+b15 b12 b13 b14 (right shift sebenernya triple left shift si)
 """
 
 s_box = [
@@ -38,9 +38,41 @@ mix_matrix = [
     [0x3, 0x1, 0x1, 0x2]
 ]
 
-def plain_btyes():
+#generate round key dulu wok, nah caranya gmn? ribet
+
+round_constant = [
+    0x01, 0x02, 0x04, 0x08, 0x10,
+    0x20, 0x40, 0x80, 0x1B, 0x36
+]
+
+# geser kiri bosku
+def rotation_word(word):
+    return word[1:] + word[:1]
+
+def sub_word(word):
+    return [s_box[i] for i in word]
+
+def round_key(key):
+    if len(key) not in (16, 24, 32): raise ValueError("panjangnya yg bener wok") 
+
+    nk = len(key) // 4
+    nr = nk + 6
+    total_word = 4 * (nr+1)
+    words = []
+    for i in range(0, len(key), 4):
+        words.append(list(key[i:i+4]))
+
+    for i in range(nk, total_word):
+        tmp = words.copy()
+
+        if i % 4 == 0:
+            w_prev = tmp[i-1]
+            w_nk_prev = tmp[i-nk]
+
+    
 
     return
+
 
 
 def sub_bytes(mat):
