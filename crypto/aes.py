@@ -1,15 +1,15 @@
-"""
-b0 b1 b2 b3
-b4 b5 b6 b7
-b8 b9 b10 b11
-b12 b13 b14 b15 
+""" dem harusnya colls major
+b0  b4  b8  b12
+b1  b5  b9  b13
+b2  b6  b10 b14
+b3  b7  b11 b15
 """
 
-"""
-b0 b1 b2 b3 (none)
-b5 b6 b7 b4 (left shift)
-b10 b11 b8 b9 (double left shift)
-b15 b12 b13 b14 (right shift sebenernya triple left shift si)
+""" jdi gini le
+b0  b4  b8  b12
+b5  b9  b13 b1
+b10 b14 b2  b6
+b15 b3  b7 b11
 """
 
 s_box = [
@@ -63,17 +63,38 @@ def round_key(key):
         words.append(list(key[i:i+4]))
 
     for i in range(nk, total_word):
-        tmp = words.copy()
+        w_prev = words[i-1].copy()
+        if i % nk == 0:
+            w_prev = rotation_word(w_prev)
+            w_prev = sub_word(w_prev)
+            w_prev[0] ^= round_constant[i//nk-1]
+        elif nk == 8 and i % nk == 4:
+            w_prev = sub_word(w_prev)
 
-        if i % 4 == 0:
-            w_prev = tmp[i-1]
-            w_nk_prev = tmp[i-nk]
+        new_word = []
+        for j in range(4):
+            new_word.append(words[i-nk][j]^w_prev[j])
 
-    
+        words.append(new_word)
+    return words
 
-    return
+def word_rk(words):
+    rk = []
+    for i in range(0, len(words), 4):
+        mat = [[0] * 4 for _ in range(4)]
+        for c in range(4):
+            for r in range(4):
+                mat[r][c] = words[i+c][r]
 
+        rk.append(mat)
+    return rk
 
+def add_roundkey(mat, rk):
+    res = [[0] * 4 for i in range(4)]
+    for r in range(4):
+        for c in range(4):
+            res[r][c] = mat[r][c] ^ rk[r][c]
+    return res
 
 def sub_bytes(mat):
     res = [[0] * 4 for _ in range(4)]
@@ -124,9 +145,28 @@ def mix_columns(mat):
 
     return result
 
+def bytes_to_matrix(data):
+    if len(data) != 16: raise ValueError("Block harus 16 byte gilak")
+    mat = [[0] * 4 for _ in range(4)]
+    for c in range(4):
+        for r in range(4):
+            mat[r][c] = data[c * 4 + r]
+    return mat
 
-# kalikan matrixmix dengan matrix plain yang sudah di shift
-def aes(plain, key, nonce):
+def mat_to_bytes(mat):
+    result = []
+    for c in range(4):
+        for r in range(4):
+            result.append(mat[r][c])
+    return bytes(result)
+
+
+def aes(block, key):
+    matrix = bytes_to_matrix(block)
+    round_k = round_key(key)
+
+    matrix = add_roundkey(matrix, round_k[0])
+    
 
     return
 
