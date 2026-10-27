@@ -160,15 +160,33 @@ def mat_to_bytes(mat):
             result.append(mat[r][c])
     return bytes(result)
 
-
+# algo, algo apa yang dingin? aes, karena Es xixixi
 def aes(block, key):
     matrix = bytes_to_matrix(block)
-    round_k = round_key(key)
+    # generate word bwat key
+    words = round_key(key)
+    round_k = word_rk(words)
 
+    #init add eound key
     matrix = add_roundkey(matrix, round_k[0])
-    
+    round_number = len(round_k) - 1
 
-    return
+    # round
+    for i in range(1, round_number):
+        #sub byte
+        matrix = sub_bytes(matrix)
+        # shift 
+        matrix = shift_rows(matrix)
+        # mix matrix
+        matrix = mix_columns(matrix)
+        #add round again
+        matrix = add_roundkey(matrix, round_k[i])
+
+    matrix = sub_bytes(matrix)
+    matrix = shift_rows(matrix)
+    matrix = add_roundkey(matrix, round_k[round_number])
+
+    return mat_to_bytes(matrix)
 
 def main():
     aes()
