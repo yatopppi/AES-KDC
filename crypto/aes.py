@@ -188,6 +188,26 @@ def aes(block, key):
 
     return mat_to_bytes(matrix)
 
+def ctr_aes(data, key, nonce):
+    if len(key) not in (16,24,32): raise ValueError("keynya ga pas wok")
+    if len(nonce) != 12: raise ValueError("nonce harus 12 mas")
+
+    total_block = (len(data)+ 15) // 16
+    if total_block > 2**32: raise ValueError("counter overflow")
+
+    res = bytearray()
+    for i in range(total_block):
+        block = data[i*16:(i+1)*16]
+        counter = i.to_bytes(4, "big")
+        ctr_block = counter + nonce
+        keystream = aes(ctr_block, key)
+
+        for j in range(len(block)):
+            res.append(block[j] ^ keystream[j])
+
+    return bytes(res)
+
+
 def main():
     aes()
 
