@@ -101,8 +101,8 @@ def sub_bytes(mat):
 
     for r in range(4):
         for c in range(4):
-            bytes = mat[r][c]
-            res[r][c] = s_box[bytes]
+            byte = mat[r][c]
+            res[r][c] = s_box[byte]
 
     return res
 
